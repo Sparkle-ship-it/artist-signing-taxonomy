@@ -6,7 +6,7 @@ MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 api_key = os.getenv("OPENAI_API_KEY")
 
 if not api_key:
-    print("❌ ERROR: OPENAI_API_KEY not found. Did you add it in GitHub Secrets?", file=sys.stderr)
+    print("❌ ERROR: Missing OPENAI_API_KEY. Add it to GitHub Secrets.", file=sys.stderr)
     sys.exit(1)
 
 client = OpenAI(api_key=api_key)
