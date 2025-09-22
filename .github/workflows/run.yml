@@ -1,1 +1,43 @@
+name: Run Taxonomy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: "Enter a subject (e.g., new artist signing)"
+        required: true
+
+jobs:
+  taxonomy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai tenacity
+
+      - name: Generate Taxonomy
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5-mini
+        run: |
+          python scripts/generate_taxonomy.py "${{ github.event.inputs.subject }}"
+
+      - name: Expand Subcategories
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5-mini
+          HTTP_TIMEOUT: "25"
+          RETRIES_PER_CAT: "2"
+          BACKOFF_MAX: "6"
+        run: |
+          python scripts/expand_subcategories.py "${{ github.event.inputs.subject }}"
 
